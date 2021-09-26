@@ -45,21 +45,21 @@ func (t *TrainResource) Register(container *restful.Container) {
 	container.Add(ws)
 }
 
-func (t *TrainResource) getTrain(req *restful.Request, res *restful.Response) {
+func (t TrainResource) getTrain(req *restful.Request, res *restful.Response) {
 	id := req.PathParameter("train-id")
 
-	err := DB.QueryRow("select ID, DRIVER_NAME, OPERATING_STATUS FROM train where id=?", id).Scan(t.ID, t.DriverName, t.OperatingStatus)
+	err := DB.QueryRow("select ID, DRIVER_NAME, OPERATING_STATUS FROM train where id=?", id).Scan(&t.ID, &t.DriverName, &t.OperatingStatus)
 	if err != nil {
 		log.Println(err)
 
 		res.AddHeader("Content-Type", "text/plain")
 		res.WriteErrorString(http.StatusNotFound, "Train could not befound.")
 	} else {
-		res.WriteEntity(*t)
+		res.WriteEntity(t)
 	}
 }
 
-func (t *TrainResource) createTrain(req *restful.Request, res *restful.Response) {
+func (t TrainResource) createTrain(req *restful.Request, res *restful.Response) {
 	log.Println(req.Request.Body)
 
 	decoder := json.NewDecoder(req.Request.Body)
@@ -80,7 +80,7 @@ func (t *TrainResource) createTrain(req *restful.Request, res *restful.Response)
 	}
 }
 
-func (t *TrainResource) removeTrain(req *restful.Request, res *restful.Response) {
+func (t TrainResource) removeTrain(req *restful.Request, res *restful.Response) {
 	id := req.PathParameter("train-id")
 
 	statement, _ := DB.Prepare("delete from train where id=?")
